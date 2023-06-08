@@ -1,2 +1,6 @@
+# api
 uvicorn==0.22.0
 fastapi==0.96.0
+
+# .env
+python-dotenv==0.19.2
