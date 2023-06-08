@@ -1,19 +1,54 @@
 from database import get_db
-from fastapi import APIRouter, Depends
-from models import MVP_Table, ItemCreate
+from datetime import datetime
+from sqlalchemy.orm import Session
+from models import Coupon, CouponCreate, CouponOut
+from fastapi import APIRouter, Depends, HTTPException, status
 
-database_mvp_router = APIRouter(prefix="")
+coupon_router = APIRouter(prefix="/coupons")
 
-@database_mvp_router.post("/database/mvp")
-def create_item(item: ItemCreate, db = Depends(get_db)):
+def validate_expiration_date(expiration_date: datetime):
+    current_datetime = datetime.now()
+    if expiration_date <= current_datetime:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A data de expiração deve ser posterior à data atual."
+        )
 
-    new_item = MVP_Table(name=item.name)
-    db.add(new_item)
+def validate_max_uses(max_uses: int):
+    if max_uses <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="O número máximo de utilizações deve ser maior que zero."
+        )
+
+def validate_min_purchase_amount(min_purchase_amount: float):
+    if min_purchase_amount <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="O valor mínimo de compra deve ser maior que zero."
+        )
+
+def validate_coupon_create(coupon: CouponCreate):
+    validate_expiration_date(coupon.expiration_date)
+    validate_max_uses(coupon.max_uses)
+    validate_min_purchase_amount(coupon.min_purchase_amount)
+
+@coupon_router.post("/", response_model=CouponOut)
+def create_coupon(coupon: CouponCreate, db: Session = Depends(get_db)):
+    validate_coupon_create(coupon)
+
+    new_coupon = Coupon(
+        code=coupon.code,
+        expiration_date=coupon.expiration_date,
+        max_uses=coupon.max_uses,
+        min_purchase_amount=coupon.min_purchase_amount,
+        discount_type=coupon.discount_type,
+        discount_amount=coupon.discount_amount,
+        general_public=coupon.general_public,
+        first_purchase_only=coupon.first_purchase_only
+    )
+
+    db.add(new_coupon)
     db.commit()
-    db.refresh(new_item)
-    return 201
-
-@database_mvp_router.get("/database/mvp")
-def get_items(db = Depends(get_db)):
-    items = db.query(MVP_Table).all()
-    return items
+    db.refresh(new_coupon)
+    return new_coupon
