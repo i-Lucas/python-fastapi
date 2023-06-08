@@ -1,0 +1,23 @@
+services:
+  app:
+    container_name: python_api
+    build: .
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  db:
+    image: postgres
+    container_name: postgres_db
+    ports:
+      - 5436:5432
+    env_file:
+      - .env
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+
+volumes:
+  postgres_db:
