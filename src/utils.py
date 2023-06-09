@@ -9,8 +9,10 @@ def get_test_url():
     return os.getenv("DATABASE_TEST_URL");
 
 def get_docker_url():
-    time.sleep(2) # workaround postgres
-    return os.getenv("DATABASE_URL_DOCKER")
+    return os.getenv("DATABASE_URL_DOCKER");
+
+def get_docker_test_url():
+    return os.getenv("DATABASE_TEST_DOCKER_URL");
 
 def get_database_url(TEST=False):
     docker_arg = len(sys.argv) > 1 and sys.argv[1] == "-DOCKER"

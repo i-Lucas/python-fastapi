@@ -9,7 +9,7 @@ Base = declarative_base()
 
 class DiscountType(str, PyEnum):
     PERCENTAGE = "percentage"
-    FIXED_AMOUNT_GENERAL = "fixed_amount_general"
+    FIXED_AMOUNT = "fixed_amount"
     FIXED_AMOUNT_FIRST_PURCHASE = "fixed_amount_first_purchase"
 
 class Coupon(Base):

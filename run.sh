@@ -34,7 +34,7 @@ start_service() {
 has_postgresql=false
 has_docker=false
 
-# start_service "postgresql"
+start_service "postgresql"
 start_service "docker"
 
 # ----------------------------------------------------------------
@@ -69,7 +69,7 @@ docker_error()
 
 if [[ "$1" == "-DOCKER" ]]; then
     if ! "$has_docker"; then
-        echo "ERRO: É necessário ter o Docker instalado."
+        echo "ERRO: É necessário ter o Docker instalado e rodando."
         exit 1
     fi
 
@@ -81,11 +81,11 @@ if [[ "$1" == "-DOCKER" ]]; then
 elif [[ "$1" == "-TEST" ]]; then
     if "$has_postgresql"; then
         echo "INFO:     Rodando os testes no banco de dados local"
-            pytest src/tests.py
+            pytest
     elif "$has_docker"; then
         echo "INFO:     Rodando os testes no banco de dados docker"
-        if create_docker_database "$POSTGRES_TEST_DB" "5433"; then
-            pytest src/tests.py
+        if create_docker_database "$POSTGRES_TEST_DB" "5432"; then # 5433
+            sleep 2 && pytest
         else
             echo "ERRO: Falha ao criar o contêiner Docker."
             exit 1
@@ -103,7 +103,7 @@ else
     elif "$has_docker"; then
         echo "INFO:     Rodando a aplicação no banco de dados docker"
         if create_docker_database "$POSTGRES_DB" "5432"; then
-            python3 ./src/main.py
+            sleep 2 && python3 ./src/main.py
         else
             echo "ERRO: Falha ao criar o contêiner Docker."
             exit 1
