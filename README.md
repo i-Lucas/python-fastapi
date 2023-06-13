@@ -1,5 +1,3 @@
-<h1>Desafio Backend Spotlar</h1>
-
 <h2>Requisitos</h2>
 
 <h4>Para rodar esse projeto você precisará ter instalado o docker <strong><u>ou</u></strong>  o postgresql.</h4>
